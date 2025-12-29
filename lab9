@@ -1,7 +1,7 @@
 set ns [new Simulator]
 
-set ns trace-all $tr
 set tr [open out.tr w]
+$ns trace-all $tr
 
 set nam [open out.nam w]
 $ns namtrace-all $nam
@@ -12,10 +12,13 @@ set n2 [$ns node]
 set n3 [$ns node]
 
 $ns duplex-link $n0 $n1 1Mb 20ms DropTail
-$ns duplex-link $n0 $n2 1Mb 20ms DropTail
+$ns duplex-link-op $n0 $n1 orient right-up
+
 $ns duplex-link $n1 $n2 1Mb 20ms DropTail
-$ns duplex-link $n1 $n3 1Mb 20ms DropTail
+$ns duplex-link-op $n1 $n2 orient right
+
 $ns duplex-link $n2 $n3 1Mb 20ms DropTail
+$ns duplex-link-op $n2 $n3 orient right-up
 
 set tcp [new Agent/TCP]
 $tcp set fid_ 1
@@ -29,10 +32,7 @@ $ns connect $tcp $sink
 set ftp [new Application/FTP]
 $ftp attach-agent $tcp
 
-$ns at 0.0 "$ns trace-annotate \"GoBackN\""
-$ns at 0.05 "$ns trace-annotate \"FTP Starts\""
-$ns at 0.06 "$ns trace-annotate \"Send 6 packet from S1 to S2\""
-
+$ns at 0.05 "$ftp start"
 $ns at 0.06 "$tcp set window_ 6"
 $ns at 0.06 "$tcp set maxcwnd_ 6"
 
@@ -45,19 +45,20 @@ $ns at 0.305 "$tcp set maxcwnd_ 4"
 $ns at 0.308 "$ns detach-agent $n0 $tcp"
 $ns detach-agent $n3 $sink
 
-$ns at 0.30 "$ns trace-annotate \"Error Occurred and packet lost so ack is not sent for packet\""
-$ns at 0.30 "$ns trace-annotate \"Retransmit packet 5 to 6\""
-$ns at 1.0 "$ns trace-annotate \"FTP Stops\""
+$ns at 1.5 "finish"
+
+$ns at 0.0 "$ns trace-annotate \"GoBackN\""
+$ns at 0.05 "$ns trace-annotate \"FTP Started\""
+$ns at 0.06 "$ns trace-annotate \"Send 6 packet from S1 to S2\""
 
 proc finish {} {
-global ns tr nam
-$ns flush-trace
-close $tr
-close $nam
-puts "Filtering..."
-exec nam out.nam &
-exit 0
+    global ns tr nam
+    $ns flush-trace
+    close $tr
+    close $nam
+    puts "Filtering..."
+    exec nam out.nam &
+    exit 0
 }
 
-$ns at 1.5 "finish"
 $ns run
