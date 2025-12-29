@@ -50,6 +50,9 @@ $ns at 1.5 "finish"
 $ns at 0.0 "$ns trace-annotate \"GoBackN\""
 $ns at 0.05 "$ns trace-annotate \"FTP Started\""
 $ns at 0.06 "$ns trace-annotate \"Send 6 packet from S1 to S2\""
+$ns at 0.26 "$ns trace-annotate \"Error occurred\""
+$ns at 0.30 "$ns trace-annotate \"Packet lost so ACK is not sent for packet\""
+$ns at 1.0 "$ns trace-annotate \"FTP Stopped\""
 
 proc finish {} {
     global ns tr nam
